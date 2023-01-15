@@ -1,12 +1,12 @@
 if __name__ != '__main__':
-    from helpers.fetcher import empty_or_row, empty_or_rows
+    from helpers.fetch import empty_or_row, empty_or_rows
     from helpers.hash import hash_sha256
 from flask import Response, Request, json, jsonify
 from mysql.connector import MySQLConnection, IntegrityError
-from mysql.connector.cursor import MySQLCursor
+from mysql.connector.cursor import MySQLCursorDict
 
 
-def get_all_user(cursor: MySQLCursor) -> Response:
+def get_all_user(cursor: MySQLCursorDict):
     cursor.execute(
         """
         SELECT id_user, name, phone, email, address, name_role FROM user
@@ -21,15 +21,15 @@ def get_all_user(cursor: MySQLCursor) -> Response:
         for row in rows:
             data.append(
                 {
-                    'id': row[0], 'name': row[1], 'phone': row[2],
-                    'email': row[3], 'address': row[4], 'role': row[5]
+                    'id': row['id_user'], 'name': row['name'], 'phone': row['phone'],
+                    'email': row['email'], 'address': row['address'], 'role': row['name_role']
                 }
             )
 
     return jsonify({'status': "OK", 'data': data})
 
 
-def get_user(cursor: MySQLCursor, id: int) -> Response:
+def get_user(cursor: MySQLCursorDict, id: int):
     status_code = 404
     response = {}
     response['status'] = "GALAT"
@@ -49,8 +49,8 @@ def get_user(cursor: MySQLCursor, id: int) -> Response:
         response['status'] = "OK"
         response['message'] = "Data ditemukan!"
         response['data'] = {
-            'id': row[0], 'name': row[1], 'phone': row[2],
-            'email': row[3], 'address': row[4], 'role': row[5]
+            'id': row['id_user'], 'name': row['name'], 'phone': row['phone'],
+            'email': row['email'], 'address': row['address'], 'role': row['name_role']
         }
 
     return Response(
@@ -60,7 +60,7 @@ def get_user(cursor: MySQLCursor, id: int) -> Response:
     )
 
 
-def create_user(db: MySQLConnection, cursor: MySQLCursor, request_body) -> Response:
+def create_user(db: MySQLConnection, cursor: MySQLCursorDict, request_body):
     status_code = 400
     response = {'status': "GALAT", 'message': "Gagal menambahkan data..."}
 
@@ -93,11 +93,16 @@ def create_user(db: MySQLConnection, cursor: MySQLCursor, request_body) -> Respo
     )
 
 
-def update_user(db: MySQLConnection, cursor: MySQLCursor, id: int, request: Request) -> Response:
+def update_user(db: MySQLConnection, cursor: MySQLCursorDict, id: int, request: Request):
     status_code = 400
     response = {'status': "GALAT", 'message': "Gagal mengubah data..."}
 
-    cursor.execute(f"SELECT * FROM user WHERE id_user = {id};")
+    cursor.execute(
+        f"""
+        SELECT id_user, name, phone, email, address, password, id_role
+        FROM user WHERE id_user = {id};
+        """
+    )
     current_user_data = empty_or_row(cursor)
 
     if not current_user_data:
@@ -108,13 +113,13 @@ def update_user(db: MySQLConnection, cursor: MySQLCursor, id: int, request: Requ
         )
 
     new_user_data = {
-        'id_user': current_user_data[0],
-        'name': current_user_data[1],
-        'phone': current_user_data[2],
-        'email': current_user_data[3],
-        'address': current_user_data[4],
-        'password': current_user_data[5],
-        'id_role': current_user_data[6]
+        'id_user': current_user_data['id_user'],
+        'name': current_user_data['name'],
+        'phone': current_user_data['phone'],
+        'email': current_user_data['email'],
+        'address': current_user_data['address'],
+        'password': current_user_data['password'],
+        'id_role': current_user_data['id_role']
     }
 
     if request.form.get('id'):
@@ -164,11 +169,11 @@ def update_user(db: MySQLConnection, cursor: MySQLCursor, id: int, request: Requ
     )
 
 
-def delete_user(db: MySQLConnection, cursor: MySQLCursor, id: int):
+def delete_user(db: MySQLConnection, cursor: MySQLCursorDict, id: int):
     status_code = 200
 
-    cursor.execute(f"SELECT * FROM user WHERE id_user = {id};")
-    
+    cursor.execute(f"SELECT id_user FROM user WHERE id_user = {id};")
+
     if not empty_or_row(cursor):
         return Response(
             mimetype='application/json',
