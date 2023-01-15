@@ -1,5 +1,5 @@
 from flask import Flask, Response, request, jsonify
-from mysql.connector import MySQLConnection
+from mysql.connector import MySQLConnection, DatabaseError
 from mysql.connector.cursor import MySQLCursorDict
 from services.auth import login
 from services.user import get_all_user, get_user, create_user, update_user, delete_user
@@ -44,5 +44,9 @@ if __name__ == '__main__':
             return result
 
         return get_user(cursor, id)
+
+    @app.errorhandler(DatabaseError)
+    def db_error_handler(error):
+        return ("Koneksi Database Gagal...", 500)
 
     app.run(debug=True)
