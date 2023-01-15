@@ -1,7 +1,7 @@
-from mysql.connector.connection import MySQLCursor
+from mysql.connector.connection import MySQLCursorDict
 
 
-def empty_or_rows(cursor: MySQLCursor):
+def empty_or_rows(cursor: MySQLCursorDict):
     data = []
 
     try:
@@ -12,13 +12,13 @@ def empty_or_rows(cursor: MySQLCursor):
     for row in rows:
         data.append(row)
 
-    return rows
+    return data
 
 
-def empty_or_row(cursor: MySQLCursor):
+def empty_or_row(cursor: MySQLCursorDict):
     try:
         row = cursor.fetchall()[0]
     except IndexError:
-        return []
+        return {}
 
-    return [column for column in row]
+    return row
