@@ -9,7 +9,7 @@ from services.photo import get_all_session
 
 if __name__ == '__main__':
     app = Flask(__name__)
-    app.secret_key = "TtsX07gFFZ3tNqMAyKqP5FhD2QWwQvyK"
+    app.secret_key = "secret-key"
     app.config['SESSION_PERMANENT'] = False
     app.config['SESSION_TYPE'] = "filesystem"
     app.config['JSON_SORT_KEYS'] = False
