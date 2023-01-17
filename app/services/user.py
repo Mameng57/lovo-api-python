@@ -17,14 +17,7 @@ def get_all_user(cursor: MySQLCursorDict):
     data = "Data kosong..."
 
     if rows:
-        data = []
-        for row in rows:
-            data.append(
-                {
-                    'id': row['id_user'], 'name': row['name'], 'phone': row['phone'],
-                    'email': row['email'], 'address': row['address'], 'role': row['name_role']
-                }
-            )
+        data = rows
 
     return jsonify({'status': "OK", 'data': data})
 
