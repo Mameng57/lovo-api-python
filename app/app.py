@@ -4,7 +4,7 @@ from mysql.connector import MySQLConnection, DatabaseError, ProgrammingError
 from mysql.connector.cursor import MySQLCursorDict
 from services.auth import login, log_out
 from services.user import get_all_user, get_user, create_user, update_user, delete_user
-from services.photo import get_all_session
+from services.photo import get_all_session, get_photo
 
 
 if __name__ == '__main__':
@@ -54,6 +54,10 @@ if __name__ == '__main__':
     @app.route("/session/<int:id>", methods=["POST"])
     def get_session_handler(id: int) -> Response:
         return get_all_session(cursor, id)
+
+    @app.route("/photo/<int:id>", methods=["POST"])
+    def get_photo_handler(id: int) -> Response:
+        return get_photo(cursor, id)
 
     @app.errorhandler(DatabaseError)
     def db_error_handler(error) -> Response:
