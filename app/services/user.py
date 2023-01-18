@@ -19,7 +19,7 @@ def get_all_user(cursor: MySQLCursorDict):
     if rows:
         data = rows
 
-    return jsonify({'status': "OK", 'data': data})
+    return jsonify({'status': "OK", 'user': data})
 
 
 def get_user(cursor: MySQLCursorDict, id: int):
@@ -41,7 +41,7 @@ def get_user(cursor: MySQLCursorDict, id: int):
         status_code = 200
         response['status'] = "OK"
         response['message'] = "Data ditemukan!"
-        response['data'] = {
+        response['user'] = {
             'id': row['id_user'], 'name': row['name'], 'phone': row['phone'],
             'email': row['email'], 'address': row['address'], 'role': row['name_role']
         }
