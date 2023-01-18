@@ -127,7 +127,20 @@ def login(db: MySQLConnection, cursor: MySQLCursorDict, request_body):
     return Response(
         mimetype="application/json",
         status=200,
-        response=json.dumps({'status': "OK", 'message': "Login berhasil!"})
+        response=json.dumps(
+            {
+                'status': "OK",
+                'message': "Login berhasil!",
+                'user': {
+                    'id_user': user_data['id_user'],
+                    'name': user_data['name'],
+                    'phone': user_data['phone'],
+                    'email': user_data['email'],
+                    'address': user_data['address'],
+                    'id_role': user_data['id_role']
+                }
+            }
+        )
     )
 
 
