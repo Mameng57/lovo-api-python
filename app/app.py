@@ -99,7 +99,7 @@ if __name__ == '__main__':
             status=405,
             response=json.dumps(
                 {
-                    'status': "GALAT", 
+                    'status': "GALAT",
                     'message': f"Method {request.method} tidak tersedia untuk endpoint ini..."
                 }
             )
