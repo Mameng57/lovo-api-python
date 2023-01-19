@@ -43,7 +43,7 @@ def get_all_session(cursor: MySQLCursorDict, id: int):
 def get_all_photo(cursor: MySQLCursorDict, id: int):
     cursor.execute(
         f"""
-        SELECT id_photo, url FROM photo WHERE id_session = {id}
+        SELECT id_photo, url, id_session FROM photo WHERE id_session = {id}
         """
     )
     photos = empty_or_rows(cursor)
