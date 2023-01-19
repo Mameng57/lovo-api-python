@@ -38,6 +38,17 @@ def authenticate(db: MySQLConnection, cursor: MySQLCursorDict):
     return session_user
 
 
+def invalidate(db: MySQLConnection, cursor: MySQLCursorDict, user_id: int):
+    cursor.execute(
+        f"""
+        DELETE FROM token WHERE id_user = {user_id};
+        """
+    )
+    db.commit()
+    session['token'] = None
+    session.pop('token')
+
+
 def login(db: MySQLConnection, cursor: MySQLCursorDict, request_body):
     logged_in_user = authenticate(db, cursor)
 
@@ -109,6 +120,7 @@ def login(db: MySQLConnection, cursor: MySQLCursorDict, request_body):
             response=json.dumps({'status': "GALAT", 'message': "email atau password salah..."})
         )
 
+    invalidate(db, cursor, user_data['id_user'])
     session_token = generate_token(request_body['email_or_phone'])
     session['token'] = session_token
 
