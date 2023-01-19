@@ -77,7 +77,7 @@ def create_user(db: MySQLConnection, cursor: MySQLCursorDict, request_body):
     except IntegrityError:
         response['message'] = "Email sudah terdaftar atau value salah..."
     except AttributeError:
-        response['message'] = "Value kurang, coba periksa parameter yang diperlukan..."
+        response['message'] = "Value kurang, coba periksa argument yang diperlukan..."
 
     return Response(
         mimetype='application/json',
