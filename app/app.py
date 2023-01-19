@@ -62,7 +62,7 @@ if __name__ == '__main__':
             return upload_photo(app, mysql, cursor, request, id)
         return get_all_photo(cursor, id)
 
-    @app.route("/photo/<path:path>", methods=["POST"])
+    @app.route("/photo/<path:path>", methods=["GET"])
     def view_photo_handler(path: str) -> Response:
         return view_photo(path)
 
