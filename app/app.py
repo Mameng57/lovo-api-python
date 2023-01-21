@@ -4,7 +4,8 @@ from mysql.connector import MySQLConnection, DatabaseError, ProgrammingError
 from mysql.connector.cursor import MySQLCursorDict
 from services.auth import login, log_out
 from services.user import get_all_user, get_user, create_user, update_user, delete_user
-from services.photo import get_all_session, get_all_photo, upload_photo, view_photo
+from services.photo import get_all_session, get_all_photo, upload_photo, view_photo, get_all_package
+from services.download import download_single, download_multiple
 
 
 if __name__ == '__main__':
@@ -51,6 +52,10 @@ if __name__ == '__main__':
             return delete_user(mysql, cursor, id)
 
         return get_user(cursor, id)
+    
+    @app.route("/package", methods=["GET"])
+    def get_package_handler():
+        return get_all_package(cursor)
 
     @app.route("/session/<int:id>", methods=["POST"])
     def get_session_handler(id: int) -> Response:
@@ -65,6 +70,14 @@ if __name__ == '__main__':
     @app.route("/photo/<path:path>", methods=["GET"])
     def view_photo_handler(path: str) -> Response:
         return view_photo(path)
+
+    @app.route("/download", methods=["POST"])
+    def download_multiple_handler() -> Response:
+        raise ProgrammingError
+
+    @app.route("/download/<path:path>", methods=["POST"])
+    def download_handler(path: str) -> Response:
+        return download_single(path)
 
     @app.errorhandler(DatabaseError)
     def db_error_handler(error) -> Response:

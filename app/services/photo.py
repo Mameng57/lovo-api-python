@@ -18,11 +18,24 @@ def allowed_file(filename: str):
     return False
 
 
+def get_all_package(cursor: MySQLCursorDict):
+    cursor.execute("SELECT id_package, name_package, download_count, print_count FROM package")
+    packages = empty_or_rows(cursor)
+
+    return Response(
+        mimetype="application/json",
+        status=200,
+        response=json.dumps({'status': "OK", 'package': packages})
+    )
+
+
 def get_all_session(cursor: MySQLCursorDict, id: int):
     cursor.execute(
         f"""
-        SELECT id_session, date, package_info, photos_count, id_user
-        FROM session WHERE id_user = {id};
+        SELECT id_session, date_taken, date_due, name_package,
+               download_count, print_count, user.name
+        FROM session join user ON user.id_user = session.id_user
+        WHERE id_user = {id};
         """
     )
     sessions = empty_or_rows(cursor)
@@ -32,7 +45,9 @@ def get_all_session(cursor: MySQLCursorDict, id: int):
     if sessions:
         data = sessions
         for value in data:
-            value['date'] = str(value['date'])
+            value['date_taken'] = str(value['date_taken'])
+            value['date_due'] = str(value['date_due'])
+
 
     return Response(
         mimetype="application/json",
