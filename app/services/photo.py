@@ -1,6 +1,7 @@
 if __name__ != '__main__':
     from helpers.fetch import empty_or_row, empty_or_rows
 from os import path
+from datetime import datetime
 from flask import Flask, Response, Request, json, send_file
 from mysql.connector import MySQLConnection
 from mysql.connector.connection import MySQLCursorDict
@@ -68,16 +69,23 @@ def upload_photo(app: Flask, db: MySQLConnection, cursor: MySQLCursorDict, reque
             response=json.dumps({'status': "GALAT", 'message': "Argument file kosong..."})
         )
 
-    file = request.files['file']
+    files = request.files.getlist('file')
 
-    if not file.filename:
-        return Response(
-            mimetype="application/json",
-            status=400,
-            response=json.dumps({'status': "GALAT", 'message': "Nama File kosong..."})
-        )
+    for file in files:
+        if not file.filename:
+            return Response(
+                mimetype="application/json",
+                status=400,
+                response=json.dumps({'status': "GALAT", 'message': "Nama File kosong..."})
+            )
+        
+        if not file or not allowed_file(file.filename):
+            return Response(
+                mimetype="application/json",
+                status=500,
+                response=json.dumps({'status': "GALAT", 'message': "Server tidak dapat menerima file itu..."})
+            )
 
-    if file and allowed_file(file.filename):
         filename = path.join(app.config['UPLOAD_FOLDER'], secure_filename(f"{id}_{file.filename}"))
         db_file_path = f"static/uploads/{id}_{file.filename}"
         file.save(filename)
@@ -89,16 +97,10 @@ def upload_photo(app: Flask, db: MySQLConnection, cursor: MySQLCursorDict, reque
         )
         db.commit()
 
-        return Response(
-            mimetype="application/json",
-            status=200,
-            response=json.dumps({'status': "OK", 'message': "Upload foto berhasil!"})
-        )
-
     return Response(
         mimetype="application/json",
-        status=500,
-        response=json.dumps({'status': "GALAT", 'message': "Server tidak dapat menerima file itu..."})
+        status=200,
+        response=json.dumps({'status': "OK", 'message': "Upload foto berhasil!"})
     )
 
 
