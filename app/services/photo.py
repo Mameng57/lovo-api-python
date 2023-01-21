@@ -2,6 +2,7 @@ if __name__ != '__main__':
     from helpers.fetch import empty_or_row, empty_or_rows
 from os import path
 from datetime import datetime
+from random import choice
 from flask import Flask, Response, Request, json, send_file
 from mysql.connector import MySQLConnection
 from mysql.connector.connection import MySQLCursorDict
@@ -34,8 +35,10 @@ def get_all_session(cursor: MySQLCursorDict, id: int):
         f"""
         SELECT id_session, date_taken, date_due, name_package,
                download_count, print_count, user.name
-        FROM session join user ON user.id_user = session.id_user
-        WHERE id_user = {id};
+        FROM session
+        JOIN user ON user.id_user = session.id_user
+        JOIN package ON package.id_package = session.id_package
+        WHERE session.id_user = {id};
         """
     )
     sessions = empty_or_rows(cursor)
@@ -47,7 +50,6 @@ def get_all_session(cursor: MySQLCursorDict, id: int):
         for value in data:
             value['date_taken'] = str(value['date_taken'])
             value['date_due'] = str(value['date_due'])
-
 
     return Response(
         mimetype="application/json",
@@ -93,16 +95,27 @@ def upload_photo(app: Flask, db: MySQLConnection, cursor: MySQLCursorDict, reque
                 status=400,
                 response=json.dumps({'status': "GALAT", 'message': "Nama File kosong..."})
             )
-        
+
         if not file or not allowed_file(file.filename):
             return Response(
                 mimetype="application/json",
                 status=500,
-                response=json.dumps({'status': "GALAT", 'message': "Server tidak dapat menerima file itu..."})
+                response=json.dumps(
+                    {
+                        'status': "GALAT", 'message': "Server tidak dapat menerima file itu..."
+                    }
+                )
             )
 
-        filename = path.join(app.config['UPLOAD_FOLDER'], secure_filename(f"{id}_{file.filename}"))
-        db_file_path = f"static/uploads/{id}_{file.filename}"
+        name = "".join(choice(file.filename.split('.')[0]) for _ in range(5))
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        extension = file.filename.split('.')[-1].lower()
+        filename = path.join(
+            app.config['UPLOAD_FOLDER'],
+            secure_filename(f"{id}_{name}{timestamp}.{extension}")
+        )
+        db_file_path = f"static/uploads/{id}_{name}{timestamp}.{extension}"
+
         file.save(filename)
         cursor.execute(
             f"""
